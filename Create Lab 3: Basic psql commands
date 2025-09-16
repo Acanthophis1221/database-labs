@@ -1,0 +1,31 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Пароль пользователя postgres:
+
+psql (17.6)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+mydb=# CREATE TABLE students (id SERIAL PRIMARY KEY, name VARCHAR(100), age INT);
+CREATE TABLE
+mydb=# INSERT INTO students (name, age) VALUES ('Arlen', 20), ('Ikbol', 19), ('Atai', 20), ('Maksim', 20);
+INSERT 0 4
+mydb=# SELECT * FROM students;
+ id |  name  | age
+----+--------+-----
+  1 | Arlen  |  20
+  2 | Ikbol  |  19
+  3 | Atai   |  20
+  4 | Maksim |  20
+(4 ёЄЁюъш)
+
+
+mydb=# DROP TABLE students;
+DROP TABLE
+mydb=# \q
