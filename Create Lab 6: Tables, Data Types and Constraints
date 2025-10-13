@@ -1,0 +1,54 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Пароль пользователя postgres:
+
+psql (17.6)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+mydb=# CREATE TABLE students (
+mydb(#     student_id SERIAL PRIMARY KEY,
+mydb(#     first_name VARCHAR(50) NOT NULL,
+mydb(#     last_name VARCHAR(50) NOT NULL,
+mydb(#     email VARCHAR(100) UNIQUE NOT NULL,
+mydb(#     faculty VARCHAR(100)
+mydb(# );
+CREATE TABLE
+mydb=# \dt
+            ╤яшёюъ юЄэю°хэшщ
+ ╤їхьр  |   ╚ь     |   ╥шя   | ┬ырфхыхЎ
+--------+----------+---------+----------
+ public | students | ЄрсышЎр | postgres
+(1 ёЄЁюър)
+
+
+mydb=# ALTER TABLE students ADD COLUMN birth_date DATE;
+ALTER TABLE
+mydb=# \d students
+                                                  ╥рсышЎр "public.students"
+  ╤ЄюысхЎ   |          ╥шя           | ╧Ёртшыю ёюЁЄшЁютъш | ─юяєёЄшьюёЄ№ NULL |                 ╧ю єьюыўрэш■
+------------+------------------------+--------------------+-------------------+----------------------------------------------
+ student_id | integer                |                    | not null          | nextval('students_student_id_seq'::regclass)
+ first_name | character varying(50)  |                    | not null          |
+ last_name  | character varying(50)  |                    | not null          |
+ email      | character varying(100) |                    | not null          |
+ faculty    | character varying(100) |                    |                   |
+ birth_date | date                   |                    |                   |
+╚эфхъё√:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+    "students_email_key" UNIQUE CONSTRAINT, btree (email)
+                                            ^
+mydb=# CREATE TEMP TABLE temp_students AS
+mydb-# SELECT first_name, last_name FROM students;
+SELECT 0
+mydb=# DROP TABLE IF EXISTS temp_students;
+DROP TABLE
+mydb=# DROP TABLE IF EXISTS students;
+DROP TABLE
+mydb=# \q
