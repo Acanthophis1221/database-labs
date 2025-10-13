@@ -1,0 +1,50 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Пароль пользователя postgres:
+
+psql (17.6)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+mydb=# CREATE DATABASE university;
+CREATE DATABASE
+mydb=# \l
+                                                                ╤яшёюъ срч фрээ√ї
+    ╚ь      | ┬ырфхыхЎ | ╩юфшЁютър | ╧ЁютрщфхЁ ыюърыш |     LC_COLLATE      |      LC_CTYPE       | ╦юъры№ | ╧Ёртшыр ICU |     ╧Ёртр фюёЄєяр
+------------+----------+-----------+------------------+---------------------+---------------------+--------+-------------+-----------------------
+ mydb       | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             |
+ postgres   | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             |
+ template0  | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             | =c/postgres          +
+            |          |           |                  |                     |                     |        |             | postgres=CTc/postgres
+ template1  | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             | =c/postgres          +
+            |          |           |                  |                     |                     |        |             | postgres=CTc/postgres
+ university | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             |
+(5 ёЄЁюъ)
+
+
+mydb=# \c university
+Вы подключены к базе данных "university" как пользователь "postgres".
+university=# \c mydb
+Вы подключены к базе данных "mydb" как пользователь "postgres".
+mydb=# DROP DATABASE university;
+DROP DATABASE
+mydb=# \l
+                                                               ╤яшёюъ срч фрээ√ї
+    ╚ь     | ┬ырфхыхЎ | ╩юфшЁютър | ╧ЁютрщфхЁ ыюърыш |     LC_COLLATE      |      LC_CTYPE       | ╦юъры№ | ╧Ёртшыр ICU |     ╧Ёртр фюёЄєяр
+-----------+----------+-----------+------------------+---------------------+---------------------+--------+-------------+-----------------------
+ mydb      | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             |
+ postgres  | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             |
+ template0 | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             | =c/postgres          +
+           |          |           |                  |                     |                     |        |             | postgres=CTc/postgres
+ template1 | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |        |             | =c/postgres          +
+           |          |           |                  |                     |                     |        |             | postgres=CTc/postgres
+(4 ёЄЁюъш)
+
+
+mydb=# /q
