@@ -1,0 +1,63 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Пароль пользователя postgres:
+
+psql (17.6)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+mydb=# CREATE TABLE student (
+mydb(#     student_id SERIAL PRIMARY KEY,
+mydb(#     first_name VARCHAR(50) NOT NULL,
+mydb(#     last_name VARCHAR(50) NOT NULL,
+mydb(#     email VARCHAR(100) UNIQUE NOT NULL
+mydb(# );
+CREATE TABLE
+mydb=# INSERT INTO student (first_name, last_name, email) VALUES
+mydb-# ('Alice', 'Johnson', 'alice@alatoo.edu.kg'),
+mydb-# ('Bob', 'Smith', 'bob@alatoo.edu.kg');
+INSERT 0 2
+mydb=# CREATE TABLE course_enrollment (
+mydb(#     student_id INTEGER,
+mydb(#     course_id INTEGER,
+mydb(#     semester VARCHAR(20),
+mydb(#     grade CHAR(2),
+mydb(#     PRIMARY KEY (student_id, course_id, semester)
+mydb(# );
+CREATE TABLE
+mydb=# \d student
+                                                  ╥рсышЎр "public.student"
+  ╤ЄюысхЎ   |          ╥шя           | ╧Ёртшыю ёюЁЄшЁютъш | ─юяєёЄшьюёЄ№ NULL |                ╧ю єьюыўрэш■
+------------+------------------------+--------------------+-------------------+---------------------------------------------
+ student_id | integer                |                    | not null          | nextval('student_student_id_seq'::regclass)
+ first_name | character varying(50)  |                    | not null          |
+ last_name  | character varying(50)  |                    | not null          |
+ email      | character varying(100) |                    | not null          |
+╚эфхъё√:
+    "student_pkey" PRIMARY KEY, btree (student_id)
+    "student_email_key" UNIQUE CONSTRAINT, btree (email)
+
+
+mydb=# \d course_enrollment
+                             ╥рсышЎр "public.course_enrollment"
+  ╤ЄюысхЎ   |          ╥шя          | ╧Ёртшыю ёюЁЄшЁютъш | ─юяєёЄшьюёЄ№ NULL | ╧ю єьюыўрэш■
+------------+-----------------------+--------------------+-------------------+--------------
+ student_id | integer               |                    | not null          |
+ course_id  | integer               |                    | not null          |
+ semester   | character varying(20) |                    | not null          |
+ grade      | character(2)          |                    |                   |
+╚эфхъё√:
+    "course_enrollment_pkey" PRIMARY KEY, btree (student_id, course_id, semester)
+
+
+mydb=# DROP TABLE IF EXISTS course_enrollment;
+DROP TABLE
+mydb=# DROP TABLE IF EXISTS student;
+DROP TABLE
+mydb=# \q
