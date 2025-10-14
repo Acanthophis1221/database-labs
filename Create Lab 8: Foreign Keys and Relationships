@@ -1,0 +1,60 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Пароль пользователя postgres:
+
+psql (17.6)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+mydb=# CREATE TABLE students (
+mydb(#     student_id SERIAL PRIMARY KEY,
+mydb(#     name VARCHAR(100) NOT NULL
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE courses (
+mydb(#     course_id SERIAL PRIMARY KEY,
+mydb(#     course_name VARCHAR(100) NOT NULL
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE enrollments (
+mydb(#     enrollment_id SERIAL PRIMARY KEY,
+mydb(#     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
+mydb(#     course_id INT REFERENCES courses(course_id),
+mydb(#     grade CHAR(2)
+mydb(# );
+CREATE TABLE
+mydb=# INSERT INTO students (name) VALUES ('Alice'), ('Bob');
+INSERT 0 2
+mydb=# INSERT INTO courses (course_name) VALUES ('Math'), ('Physics');
+INSERT 0 2
+mydb=# INSERT INTO enrollments (student_id, course_id, grade) VALUES
+mydb-# (1, 1, 'A'), (2, 2, 'B');
+INSERT 0 2
+mydb=# DELETE FROM students WHERE student_id = 1;
+DELETE 1
+mydb=# \d
+                            ╤яшёюъ юЄэю°хэшщ
+ ╤їхьр  |              ╚ь               |        ╥шя         | ┬ырфхыхЎ
+--------+-------------------------------+--------------------+----------
+ public | courses                       | ЄрсышЎр            | postgres
+ public | courses_course_id_seq         | яюёыхфютрЄхы№эюёЄ№ | postgres
+ public | enrollments                   | ЄрсышЎр            | postgres
+ public | enrollments_enrollment_id_seq | яюёыхфютрЄхы№эюёЄ№ | postgres
+ public | students                      | ЄрсышЎр            | postgres
+ public | students_student_id_seq       | яюёыхфютрЄхы№эюёЄ№ | postgres
+(6 ёЄЁюъ)
+
+
+mydb=# DROP TABLE students;
+ОШИБКА:  удалить объект таблица students нельзя, так как от него зависят другие объекты
+ПОДРОБНОСТИ:  ограничение enrollments_student_id_fkey в отношении таблица enrollments зависит от объекта таблица students
+ПОДСКАЗКА:  Для удаления зависимых объектов используйте DROP ... CASCADE.
+mydb=# DROP TABLE IF EXISTS enrollments, courses, students CASCADE;
+DROP TABLE
+mydb=# \q
