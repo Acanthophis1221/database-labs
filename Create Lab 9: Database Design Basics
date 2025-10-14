@@ -1,0 +1,63 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]:
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Пароль пользователя postgres:
+
+psql (17.6)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+mydb=# CREATE TABLE authors (
+mydb(#     author_id SERIAL PRIMARY KEY,
+mydb(#     name VARCHAR(100)
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE books (
+mydb(#     book_id SERIAL PRIMARY KEY,
+mydb(#     title VARCHAR(150),
+mydb(#     publication_year INT
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE members (
+mydb(#     member_id SERIAL PRIMARY KEY,
+mydb(#     name VARCHAR(100),
+mydb(#     join_date DATE
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE loans (
+mydb(#     loan_id SERIAL PRIMARY KEY,
+mydb(#     member_id INT REFERENCES members(member_id),
+mydb(#     book_id INT REFERENCES books(book_id),
+mydb(#     loan_date DATE DEFAULT CURRENT_DATE,
+mydb(#     return_date DATE,
+mydb(#     fine NUMERIC(5,2)
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE book_authors (
+mydb(#     book_id INT REFERENCES books(book_id),
+mydb(#     author_id INT REFERENCES authors(author_id),
+mydb(#     PRIMARY KEY (book_id, author_id)
+mydb(# );
+CREATE TABLE
+mydb=# \d
+                        ╤яшёюъ юЄэю°хэшщ
+ ╤їхьр  |          ╚ь           |        ╥шя         | ┬ырфхыхЎ
+--------+-----------------------+--------------------+----------
+ public | authors               | ЄрсышЎр            | postgres
+ public | authors_author_id_seq | яюёыхфютрЄхы№эюёЄ№ | postgres
+ public | book_authors          | ЄрсышЎр            | postgres
+ public | books                 | ЄрсышЎр            | postgres
+ public | books_book_id_seq     | яюёыхфютрЄхы№эюёЄ№ | postgres
+ public | loans                 | ЄрсышЎр            | postgres
+ public | loans_loan_id_seq     | яюёыхфютрЄхы№эюёЄ№ | postgres
+ public | members               | ЄрсышЎр            | postgres
+ public | members_member_id_seq | яюёыхфютрЄхы№эюёЄ№ | postgres
+(9 ёЄЁюъ)
+
+
+mydb=# \q
