@@ -2,62 +2,198 @@ Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
 Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
 Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
 Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
-Пароль пользователя postgres:
+Password for user postgres:
 
 psql (17.6)
-ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
-                страницы Windows (1251).
-                8-битовые (русские) символы могут отображаться некорректно.
-                Подробнее об этом смотрите документацию psql, раздел
-                "Notes for Windows users".
-Введите "help", чтобы получить справку.
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
 
-mydb=# CREATE TABLE student (
-mydb(#     student_id SERIAL PRIMARY KEY,
-mydb(#     first_name VARCHAR(50) NOT NULL,
-mydb(#     last_name VARCHAR(50) NOT NULL,
-mydb(#     email VARCHAR(100) UNIQUE NOT NULL
+mydb=# CREATE TABLE students (
+mydb(#     student_id INTEGER PRIMARY KEY,
+mydb(#     name VARCHAR(100),
+mydb(#     email VARCHAR(150)
 mydb(# );
 CREATE TABLE
-mydb=# INSERT INTO student (first_name, last_name, email) VALUES
-mydb-# ('Alice', 'Johnson', 'alice@alatoo.edu.kg'),
-mydb-# ('Bob', 'Smith', 'bob@alatoo.edu.kg');
-INSERT 0 2
-mydb=# CREATE TABLE course_enrollment (
+mydb=# CREATE TABLE students (
+mydb(#     student_id INTEGER,
+mydb(#     name VARCHAR(100),
+mydb(#     email VARCHAR(150),
+mydb(#     PRIMARY KEY (student_id)
+mydb(# );
+ОШИБКА:  отношение "students" уже существует
+mydb=# DROP TABLE students;
+DROP TABLE
+mydb=# CREATE TABLE students (
+mydb(#     student_id INTEGER,
+mydb(#     name VARCHAR(100),
+mydb(#     email VARCHAR(150),
+mydb(#     PRIMARY KEY (student_id)
+mydb(# );
+CREATE TABLE
+mydb=# DROP TABLE students;
+DROP TABLE
+mydb=# CREATE TABLE students (
+mydb(#     student_id INTEGER,
+mydb(#     name VARCHAR(100),
+mydb(#     email VARCHAR(150),
+mydb(#     CONSTRAINT pk_students PRIMARY KEY (student_id)
+mydb(# );
+CREATE TABLE
+mydb=# DROP TABLE students;
+DROP TABLE
+mydb=# CREATE TABLE students (
+mydb(#     student_id INTEGER,
+mydb(#     name VARCHAR(100),
+mydb(#     email VARCHAR(150),);
+ОШИБКА:  ошибка синтаксиса (примерное положение: ")")
+LINE 4:     email VARCHAR(150),);
+                               ^
+mydb=#     email VARCHAR(150));
+ОШИБКА:  ошибка синтаксиса (примерное положение: "email")
+LINE 1: email VARCHAR(150));
+        ^
+mydb=# \dt
+Did not find any relations.
+mydb=# \d
+Did not find any relations.
+mydb=# CREATE TABLE students (
+mydb(#     student_id INTEGER,
+mydb(#     name VARCHAR(100),
+mydb(#     email VARCHAR(150));
+CREATE TABLE
+mydb=# ALTER TABLE students ADD CONSTRAINT pk_students PRIMARY KEY (student_id);
+ALTER TABLE
+mydb=# \dt
+          List of relations
+ Schema |   Name   | Type  |  Owner
+--------+----------+-------+----------
+ public | students | table | postgres
+(1 row)
+
+
+mydb=# \d students
+                       Table "public.students"
+   Column   |          Type          | Collation | Nullable | Default
+------------+------------------------+-----------+----------+---------
+ student_id | integer                |           | not null |
+ name       | character varying(100) |           |          |
+ email      | character varying(150) |           |          |
+Indexes:
+    "pk_students" PRIMARY KEY, btree (student_id)
+
+
+mydb=# DROP TABLE students;
+DROP TABLE
+mydb=# CREATE TABLE students (
+mydb(#     student_id SERIAL PRIMARY KEY,
+mydb(#     name VARCHAR(100) NOT NULL,
+mydb(#     email VARCHAR(150) UNIQUE,
+mydb(#     faculty VARCHAR(50)
+mydb(# );
+CREATE TABLE
+mydb=# INSERT INTO students (name, email, faculty) VALUES
+mydb-# ('Alice Johnson', 'alice@alatoo.edu.kg', 'Computer Science'),
+mydb-# ('Bob Smith', 'bob@alatoo.edu.kg', 'Mathematics'),
+mydb-# ('Carol Davis', 'carol@alatoo.edu.kg', 'Computer Science');
+INSERT 0 3
+mydb=# \dt
+          List of relations
+ Schema |   Name   | Type  |  Owner
+--------+----------+-------+----------
+ public | students | table | postgres
+(1 row)
+
+
+mydb=# \d students
+                                          Table "public.students"
+   Column   |          Type          | Collation | Nullable |                   Default
+------------+------------------------+-----------+----------+----------------------------------------------
+ student_id | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ name       | character varying(100) |           | not null |
+ email      | character varying(150) |           |          |
+ faculty    | character varying(50)  |           |          |
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+    "students_email_key" UNIQUE CONSTRAINT, btree (email)
+
+
+mydb=# DROP TABLE students;
+DROP TABLE
+mydb=# CREATE TABLE course_enrollments (
 mydb(#     student_id INTEGER,
 mydb(#     course_id INTEGER,
 mydb(#     semester VARCHAR(20),
+mydb(#     enrollment_date DATE DEFAULT CURRENT_DATE,
 mydb(#     grade CHAR(2),
 mydb(#     PRIMARY KEY (student_id, course_id, semester)
 mydb(# );
 CREATE TABLE
-mydb=# \d student
-                                                  ╥рсышЎр "public.student"
-  ╤ЄюысхЎ   |          ╥шя           | ╧Ёртшыю ёюЁЄшЁютъш | ─юяєёЄшьюёЄ№ NULL |                ╧ю єьюыўрэш■
-------------+------------------------+--------------------+-------------------+---------------------------------------------
- student_id | integer                |                    | not null          | nextval('student_student_id_seq'::regclass)
- first_name | character varying(50)  |                    | not null          |
- last_name  | character varying(50)  |                    | not null          |
- email      | character varying(100) |                    | not null          |
-╚эфхъё√:
-    "student_pkey" PRIMARY KEY, btree (student_id)
-    "student_email_key" UNIQUE CONSTRAINT, btree (email)
+mydb=# INSERT INTO course_enrollments (student_id, course_id, semester, grade) VALUES
+mydb-# (1, 101, '2024-Spring', 'A'),
+mydb-# (1, 102, '2024-Spring', 'B+'),
+mydb-# (2, 101, '2024-Spring', 'A-'),
+mydb-# (1, 101, '2024-Fall', 'A+');
+INSERT 0 4
+mydb=# CREATE TABLE products (
+mydb(#     product_id SERIAL PRIMARY KEY,
+mydb(#     product_name VARCHAR(100) NOT NULL,
+mydb(#     price DECIMAL(10,2)
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE transactions (
+mydb(#     transaction_id BIGSERIAL PRIMARY KEY,  -- Can handle very large numbers
+mydb(#     amount DECIMAL(15,2),
+mydb(#     transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE orders (
+mydb(#     order_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+mydb(#     customer_name VARCHAR(100),
+mydb(#     order_date DATE DEFAULT CURRENT_DATE
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE customers (
+mydb(#     customer_id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+mydb(#     customer_name VARCHAR(100),
+mydb(#     email VARCHAR(150)
+mydb(# );
+CREATE TABLE
+mydb=# INSERT INTO customers (customer_id, customer_name, email)
+mydb-# VALUES (1000, 'VIP Customer', 'vip@example.com');
+INSERT 0 1
+mydb=#
+mydb=# CREATE TABLE departments (
+mydb(#     dept_id INTEGER PRIMARY KEY,
+mydb(#     dept_name VARCHAR(100)
+mydb(# );
+CREATE TABLE
+mydb=# INSERT INTO departments VALUES (1, 'Computer Science');
+INSERT 0 1
+mydb=# INSERT INTO departments VALUES (1, 'Mathematics');
+ОШИБКА:  повторяющееся значение ключа нарушает ограничение уникальности "departments_pkey"
+DETAIL:  Ключ "(dept_id)=(1)" уже существует.
+mydb=# INSERT INTO departments VALUES (NULL, 'Physics');
+ОШИБКА:  значение NULL в столбце "dept_id" отношения "departments" нарушает ограничение NOT NULL
+DETAIL:  Ошибочная строка содержит (null, Physics).
+mydb=# \dt
+               List of relations
+ Schema |        Name        | Type  |  Owner
+--------+--------------------+-------+----------
+ public | course_enrollments | table | postgres
+ public | customers          | table | postgres
+ public | departments        | table | postgres
+ public | orders             | table | postgres
+ public | products           | table | postgres
+ public | transactions       | table | postgres
+(6 rows)
 
 
-mydb=# \d course_enrollment
-                             ╥рсышЎр "public.course_enrollment"
-  ╤ЄюысхЎ   |          ╥шя          | ╧Ёртшыю ёюЁЄшЁютъш | ─юяєёЄшьюёЄ№ NULL | ╧ю єьюыўрэш■
-------------+-----------------------+--------------------+-------------------+--------------
- student_id | integer               |                    | not null          |
- course_id  | integer               |                    | not null          |
- semester   | character varying(20) |                    | not null          |
- grade      | character(2)          |                    |                   |
-╚эфхъё√:
-    "course_enrollment_pkey" PRIMARY KEY, btree (student_id, course_id, semester)
-
-
-mydb=# DROP TABLE IF EXISTS course_enrollment;
+mydb=# DROP TABLE course_enrollments, customer, departments, orders, products, transactions;
+ОШИБКА:  таблица "customer" не существует
+mydb=# DROP TABLE course_enrollments, customers, departments, orders, products, transactions;
 DROP TABLE
-mydb=# DROP TABLE IF EXISTS student;
-DROP TABLE
+mydb=# \dt
+Did not find any relations.
 mydb=# \q
