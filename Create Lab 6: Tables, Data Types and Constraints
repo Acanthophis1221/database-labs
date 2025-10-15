@@ -2,15 +2,13 @@ Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
 Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
 Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
 Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
-Пароль пользователя postgres:
+Password for user postgres:
 
 psql (17.6)
-ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
-                страницы Windows (1251).
-                8-битовые (русские) символы могут отображаться некорректно.
-                Подробнее об этом смотрите документацию psql, раздел
-                "Notes for Windows users".
-Введите "help", чтобы получить справку.
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
 
 mydb=# CREATE TABLE students (
 mydb(#     student_id SERIAL PRIMARY KEY,
@@ -21,34 +19,94 @@ mydb(#     faculty VARCHAR(100)
 mydb(# );
 CREATE TABLE
 mydb=# \dt
-            ╤яшёюъ юЄэю°хэшщ
- ╤їхьр  |   ╚ь     |   ╥шя   | ┬ырфхыхЎ
---------+----------+---------+----------
- public | students | ЄрсышЎр | postgres
-(1 ёЄЁюър)
+          List of relations
+ Schema |   Name   | Type  |  Owner
+--------+----------+-------+----------
+ public | students | table | postgres
+(1 row)
 
 
 mydb=# ALTER TABLE students ADD COLUMN birth_date DATE;
 ALTER TABLE
 mydb=# \d students
-                                                  ╥рсышЎр "public.students"
-  ╤ЄюысхЎ   |          ╥шя           | ╧Ёртшыю ёюЁЄшЁютъш | ─юяєёЄшьюёЄ№ NULL |                 ╧ю єьюыўрэш■
-------------+------------------------+--------------------+-------------------+----------------------------------------------
- student_id | integer                |                    | not null          | nextval('students_student_id_seq'::regclass)
- first_name | character varying(50)  |                    | not null          |
- last_name  | character varying(50)  |                    | not null          |
- email      | character varying(100) |                    | not null          |
- faculty    | character varying(100) |                    |                   |
- birth_date | date                   |                    |                   |
-╚эфхъё√:
+                                          Table "public.students"
+   Column   |          Type          | Collation | Nullable |                   Default
+------------+------------------------+-----------+----------+----------------------------------------------
+ student_id | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ first_name | character varying(50)  |           | not null |  last_name  | character varying(50)  |           | not null |  email      | character varying(100) |           | not null |  faculty    | character varying(100) |           |          |  birth_date | date                   |           |          | Indexes:
     "students_pkey" PRIMARY KEY, btree (student_id)
     "students_email_key" UNIQUE CONSTRAINT, btree (email)
-                                            ^
-mydb=# CREATE TEMP TABLE temp_students AS
-mydb-# SELECT first_name, last_name FROM students;
-SELECT 0
-mydb=# DROP TABLE IF EXISTS temp_students;
-DROP TABLE
-mydb=# DROP TABLE IF EXISTS students;
-DROP TABLE
-mydb=# \q
+
+
+mydb=# ALTER TABLE students DROP COLUMN faculty;
+ALTER TABLE
+mydb=# \d
+                   List of relations
+ Schema |          Name           |   Type   |  Owner
+--------+-------------------------+----------+----------
+ public | students                | table    | postgres
+ public | students_student_id_seq | sequence | postgres
+(2 rows)
+
+
+mydb=# \d students
+                                          Table "public.students"
+   Column   |          Type          | Collation | Nullable |                   Default
+------------+------------------------+-----------+----------+----------------------------------------------
+ student_id | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ first_name | character varying(50)  |           | not null |  last_name  | character varying(50)  |           | not null |  email      | character varying(100) |           | not null |  birth_date | date                   |           |          | Indexes:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+    "students_email_key" UNIQUE CONSTRAINT, btree (email)
+
+
+ ydb=# ALTER TABLE students ALTER COLUMN first_name TYPE TEXT;
+ALTER TABLE
+mydb=# ALTER TABLE students
+mydb-# ADD CONSTRAINT unique_student_email UNIQUE (email);
+ALTER TABLE
+mydb=# \d students
+                                          Table "public.students"
+   Column   |          Type          | Collation | Nullable |                   Default
+------------+------------------------+-----------+----------+----------------------------------------------
+ student_id | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ first_name | text                   |           | not null |  last_name  | character varying(50)  |           | not null |  email      | character varying(100) |           | not null |  birth_date | date                   |           |          | Indexes:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+    "students_email_key" UNIQUE CONSTRAINT, btree (email)
+    "unique_student_email" UNIQUE CONSTRAINT, btree (email)
+
+
+mydb=# ALTER TABLE students
+mydb-# RENAME COLUMN email TO email_address;
+ALTER TABLE
+mydb=# ALTER TABLE students
+mydb-# RENAME TO university_students;
+ALTER TABLE
+mydb=# \d
+                   List of relations
+ Schema |          Name           |   Type   |  Owner
+--------+-------------------------+----------+----------
+ public | students_student_id_seq | sequence | postgres
+ public | university_students     | table    | postgres
+(2 rows)
+
+
+mydb=# \d students
+Did not find any relation named "students".
+mydb=# \d university students
+Did not find any relation named "university".
+mydb=# \d university_students
+                                      Table "public.university_students"
+    Column     |          Type          | Collation | Nullable |                   Default
+---------------+------------------------+-----------+----------+----------------------------------------------
+ student_id    | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ first_name    | text                   |           | not null |
+ last_name     | character varying(50)  |           | not null |
+ email_address | character varying(100) |           | not null |
+ birth_date    | date                   |           |          |
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+    "students_email_key" UNIQUE CONSTRAINT, btree (email_address)
+    "unique_student_email" UNIQUE CONSTRAINT, btree (email_address)
+
+
+mydb=#
