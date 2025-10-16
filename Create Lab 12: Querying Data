@@ -1,0 +1,234 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Password for user postgres:
+
+psql (17.6)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+mydb=# SELECT * FROM employees;
+ОШИБКА:  отношение "employees" не существует
+LINE 1: SELECT * FROM employees;
+                      ^
+mydb=# CREATE TABLE employees (
+mydb(#   id SERIAL PRIMARY KEY,
+mydb(#   name VARCHAR(100),
+mydb(#   department VARCHAR(50),
+mydb(#   salary NUMERIC(12,2),
+mydb(#   hire_date DATE
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE sales (
+mydb(#   id SERIAL PRIMARY KEY,
+mydb(#   employee_id INT REFERENCES employees(id),
+mydb(#   amount NUMERIC(10,2),
+mydb(#   sale_date DATE
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE products (
+mydb(#   id SERIAL PRIMARY KEY,
+mydb(#   product_name VARCHAR(200),
+mydb(#   price NUMERIC(8,2),
+mydb(#   category VARCHAR(50)
+mydb(# );
+CREATE TABLE
+mydb=# CREATE TABLE users (
+mydb(#   id SERIAL PRIMARY KEY,
+mydb(#   customer_name VARCHAR(100),
+mydb(#   email VARCHAR(200)
+mydb(# );
+CREATE TABLE
+mydb=# INSERT INTO employees (name, department, salary, hire_date) VALUES
+mydb-# ('Bektur', 'Engineering', 120000.00, '2019-06-01'),
+mydb-# ('Ikbol', 'Sales', 78000.00, '2020-02-15'),
+mydb-# ('Aktan', 'Engineering', 95000.00, '2021-08-20'),
+mydb-# ('Nuriza', 'Marketing', 60000.00, '2018-11-05'),
+mydb-# ('Ademi', 'Sales', 82000.00, '2022-01-10');
+INSERT 0 5
+mydb=# INSERT INTO sales (employee_id, amount, sale_date) VALUES
+mydb-# (2, 1500.00, '2023-01-10'),
+mydb-# (2, 2500.00, '2023-03-05'),
+mydb-# (5, 3000.00, '2023-02-20'),
+mydb-# (1, 0.00, '2023-05-01');
+INSERT 0 4
+mydb=# INSERT INTO products (product_name, price, category) VALUES
+mydb-# ('Strawberry Jam', 12.50, 'Food'),
+mydb-# ('Blueberry Muffin', 3.00, 'Food'),
+mydb-# ('Blackberry Pie', 15.00, 'Food'),
+mydb-# ('Gadget XL', 199.99, 'Electronics'),
+mydb-# ('Basic Widget', 25.00, 'Tools');
+INSERT 0 5
+mydb=# INSERT INTO users (customer_name, email) VALUES
+mydb-# ('Sabina', 'sabina@example.com'),
+mydb-# ('Arlen', 'arlen@gmail.com'),
+mydb-# ('Anna', 'anna@company.org'),
+mydb-# ('Gulzat', 'gulzat@gmail.com');
+INSERT 0 4
+mydb=# SELECT * FROM employees;
+ id |  name  | department  |  salary   | hire_date
+----+--------+-------------+-----------+------------
+  1 | Bektur | Engineering | 120000.00 | 2019-06-01
+  2 | Ikbol  | Sales       |  78000.00 | 2020-02-15
+  3 | Aktan  | Engineering |  95000.00 | 2021-08-20
+  4 | Nuriza | Marketing   |  60000.00 | 2018-11-05
+  5 | Ademi  | Sales       |  82000.00 | 2022-01-10
+(5 rows)
+
+
+mydb=# SELECT name, department FROM employees;
+  name  | department
+--------+-------------
+ Bektur | Engineering
+ Ikbol  | Sales
+ Aktan  | Engineering
+ Nuriza | Marketing
+ Ademi  | Sales
+(5 rows)
+
+
+mydb=# SELECT name, salary, salary * 0.10 AS potential_bonus
+mydb-# FROM employees;
+  name  |  salary   | potential_bonus
+--------+-----------+-----------------
+ Bektur | 120000.00 |      12000.0000
+ Ikbol  |  78000.00 |       7800.0000
+ Aktan  |  95000.00 |       9500.0000
+ Nuriza |  60000.00 |       6000.0000
+ Ademi  |  82000.00 |       8200.0000
+(5 rows)
+
+
+mydb=# SELECT name, salary
+mydb-# FROM employees
+mydb-# WHERE department = 'Sales';
+ name  |  salary
+-------+----------
+ Ikbol | 78000.00
+ Ademi | 82000.00
+(2 rows)
+
+
+mydb=# SELECT name
+mydb-# FROM employees
+mydb-# WHERE salary > 75000 AND department = 'Engineering';
+  name
+--------
+ Bektur
+ Aktan
+(2 rows)
+
+
+mydb=# SELECT product_name, price
+mydb-# FROM products
+mydb-# WHERE price BETWEEN 20 AND 50;
+ product_name | price
+--------------+-------
+ Basic Widget | 25.00
+(1 row)
+
+
+mydb=# SELECT customer_name
+mydb-# FROM customers
+mydb-# WHERE customer_name LIKE 'Bra%';
+ОШИБКА:  отношение "customers" не существует
+LINE 2: FROM customers
+             ^
+mydb=# SELECT product_name
+mydb-# FROM products
+mydb-# WHERE product_name LIKE '%berry';
+ product_name
+--------------
+(0 rows)
+
+
+mydb=# SELECT email
+mydb-# FROM users
+mydb-# WHERE email ILIKE '%@gmail.com';
+      email
+------------------
+ arlen@gmail.com
+ gulzat@gmail.com
+(2 rows)
+
+
+mydb=# SELECT name
+mydb-# FROM employees
+mydb-# WHERE name ~ '^[AB]';
+  name
+--------
+ Bektur
+ Aktan
+ Ademi
+(3 rows)
+
+
+mydb=# SELECT email
+mydb-# FROM users
+mydb-# WHERE email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$';
+       email
+--------------------
+ sabina@example.com
+ arlen@gmail.com
+ anna@company.org
+ gulzat@gmail.com
+(4 rows)
+
+
+mydb=# SELECT name, department
+mydb-# FROM employees
+mydb-# WHERE department_id IN (3, 5, 7);
+ОШИБКА:  столбец "department_id" не существует
+LINE 3: WHERE department_id IN (3, 5, 7);
+              ^
+HINT:  Возможно, предполагалась ссылка на столбец "employees.department".
+mydb=#
+mydb=# SELECT name, department FROM employees
+mydb-# WHERE employees.department IN (3, 5, 7);
+ОШИБКА:  оператор не существует: character varying = integer
+LINE 2: WHERE employees.department IN (3, 5, 7);
+                                   ^
+HINT:  Оператор с данными именем и типами аргументов не найден. Возможно, вам следует добавить явные приведения типов.
+mydb=# SELECT name, salary,
+mydb-#   CASE
+mydb-#     WHEN salary > 100000 THEN 'Senior'
+mydb-#     WHEN salary BETWEEN 60000 AND 100000 THEN 'Mid-Level'
+mydb-#     ELSE 'Junior'
+mydb-#   END AS employee_level
+mydb-# FROM employees;
+  name  |  salary   | employee_level
+--------+-----------+----------------
+ Bektur | 120000.00 | Senior
+ Ikbol  |  78000.00 | Mid-Level
+ Aktan  |  95000.00 | Mid-Level
+ Nuriza |  60000.00 | Mid-Level
+ Ademi  |  82000.00 | Mid-Level
+(5 rows)
+
+
+mydb=# WITH department_averages AS (
+mydb(#   SELECT
+mydb(#     department,
+mydb(#     AVG(salary) AS avg_salary
+mydb(#   FROM employees
+mydb(#   GROUP BY department
+mydb(# )
+mydb-# SELECT
+mydb-#   e.name,
+mydb-#   e.salary,
+mydb-#   e.department,
+mydb-#   da.avg_salary
+mydb-# FROM employees e
+mydb-# JOIN department_averages da ON e.department = da.department
+mydb-# WHERE e.salary > da.avg_salary;
+  name  |  salary   | department  |     avg_salary
+--------+-----------+-------------+---------------------
+ Bektur | 120000.00 | Engineering | 107500.000000000000
+ Ademi  |  82000.00 | Sales       |  80000.000000000000
+(2 rows)
+
+
+mydb=# \q
