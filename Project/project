@@ -1,0 +1,123 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Password for user postgres:
+
+psql (17.6)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+mydb=# CREATE DATABASE project;
+CREATE DATABASE
+mydb=# \c project;
+You are now connected to database "project" as user "postgres".
+project=# CREATE TABLE IF NOT EXISTS players (
+project(#     player_id BIGSERIAL PRIMARY KEY,
+project(#     username VARCHAR(50) NOT NULL UNIQUE,
+project(#     email VARCHAR(255) NOT NULL UNIQUE,
+project(#     password_hash VARCHAR(255) NOT NULL,
+project(#     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+project(#     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+project(# );
+CREATE TABLE
+project=# CREATE TABLE IF NOT EXISTS classes (
+project(#     class_id SMALLSERIAL PRIMARY KEY,
+project(#     name VARCHAR(50) NOT NULL UNIQUE,
+project(#     base_hp INTEGER NOT NULL DEFAULT 100,
+project(#     base_mana INTEGER NOT NULL DEFAULT 50
+project(# );
+CREATE TABLE
+project=# CREATE TABLE IF NOT EXISTS locations (
+project(#     location_id SMALLSERIAL PRIMARY KEY,
+project(#     name VARCHAR(100) NOT NULL UNIQUE,
+project(#     region VARCHAR(100),
+project(#     description TEXT
+project(# );
+CREATE TABLE
+project=# CREATE TABLE IF NOT EXISTS characters (
+project(#     char_id BIGSERIAL PRIMARY KEY,
+project(#     player_id BIGINT NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+project(#     name VARCHAR(100) NOT NULL,
+project(#     level INTEGER NOT NULL DEFAULT 1 CHECK (level >= 1),
+project(#     experience BIGINT NOT NULL DEFAULT 0 CHECK (experience >= 0),
+project(#     class_id SMALLINT REFERENCES classes(class_id),
+project(#     location_id SMALLINT REFERENCES locations(location_id),
+project(#     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+project(#     last_logout TIMESTAMP WITH TIME ZONE,
+project(#     CONSTRAINT unique_player_charname UNIQUE (player_id, name)
+project(# );
+CREATE TABLE
+project=# CREATE INDEX IF NOT EXISTS idx_char_player ON characters(player_id);
+CREATE INDEX
+project=# CREATE INDEX IF NOT EXISTS idx_char_level ON characters(level);
+CREATE INDEX
+project=# CREATE INDEX IF NOT EXISTS idx_players_username ON players(username);
+CREATE INDEX
+project=# INSERT INTO classes (name, base_hp, base_mana)
+project-# VALUES
+project-#     ('Warrior', 150, 30),
+project-#     ('Mage', 80, 120),
+project-#     ('Rogue', 100, 60)
+project-# ON CONFLICT (name) DO NOTHING;
+INSERT 0 3
+project=# INSERT INTO locations (name, region, description)
+project-# VALUES
+project-#     ('Starter Village', 'Northern Plains', 'Small village for new players'),
+project-#     ('Ironforge', 'Mountains', 'Mountain city with blacksmiths')
+project-# ON CONFLICT (name) DO NOTHING;
+INSERT 0 2
+project=# CREATE TABLE IF NOT EXISTS item_types (
+project(#     item_type_id SMALLSERIAL PRIMARY KEY,
+project(#     name VARCHAR(50) NOT NULL UNIQUE,
+project(#     description TEXT
+project(# );
+CREATE TABLE
+project=# CREATE TABLE IF NOT EXISTS items (
+project(#     item_id BIGSERIAL PRIMARY KEY,
+project(#     name VARCHAR(150) NOT NULL,
+project(#     item_type_id SMALLINT NOT NULL REFERENCES item_types(item_type_id) ON DELETE RESTRICT,
+project(#     rarity VARCHAR(30) NOT NULL DEFAULT 'common',
+project(#     value NUMERIC(12,2) NOT NULL DEFAULT 0,
+project(#     stackable BOOLEAN NOT NULL DEFAULT TRUE,
+project(#     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+project(#     CONSTRAINT unique_item_name UNIQUE (name)
+project(# );
+CREATE TABLE
+project=# CREATE INDEX IF NOT EXISTS idx_items_name ON items(name);
+CREATE INDEX
+project=# CREATE INDEX IF NOT EXISTS idx_items_type ON items(item_type_id);
+CREATE INDEX
+project=# CREATE INDEX IF NOT EXISTS idx_items_rarity ON items(rarity);
+CREATE INDEX
+project=# CREATE TABLE IF NOT EXISTS character_inventory (
+project(#     char_id BIGINT NOT NULL REFERENCES characters(char_id) ON DELETE CASCADE,
+project(#     item_id BIGINT NOT NULL REFERENCES items(item_id) ON DELETE RESTRICT,
+project(#     quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity >= 0),
+project(#     is_equipped BOOLEAN NOT NULL DEFAULT FALSE,
+project(#     acquired_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+project(#     CONSTRAINT pk_char_inv PRIMARY KEY (char_id, item_id)
+project(# );
+CREATE TABLE
+project=# CREATE INDEX IF NOT EXISTS idx_inv_char ON character_inventory(char_id);
+CREATE INDEX
+project=# CREATE INDEX IF NOT EXISTS idx_inv_item ON character_inventory(item_id);
+CREATE INDEX
+project=# CREATE INDEX IF NOT EXISTS idx_inv_equipped ON character_inventory(is_equipped);
+CREATE INDEX
+project=# INSERT INTO item_types (name, description) VALUES
+project-#     ('Weapon', 'Offensive equipment: swords, bows, staves'),
+project-#     ('Armor', 'Defensive equipment: helmets, chestplates'),
+project-#     ('Consumable', 'Potions, scrolls, food')
+project-# ON CONFLICT (name) DO NOTHING;
+INSERT 0 3
+project=# INSERT INTO items (name, item_type_id, rarity, value, stackable)
+project-# VALUES
+project-#     ('Iron Sword', (SELECT item_type_id FROM item_types WHERE name='Weapon' LIMIT 1), 'common', 10.00, FALSE),
+project-#     ('Steel Helmet', (SELECT item_type_id FROM item_types WHERE name='Armor' LIMIT 1), 'uncommon', 25.00, FALSE),
+project-#     ('Health Potion', (SELECT item_type_id FROM item_types WHERE name='Consumable' LIMIT 1), 'common', 2.50, TRUE)
+project-# ON CONFLICT (name) DO NOTHING;
+INSERT 0 3
+project=#
