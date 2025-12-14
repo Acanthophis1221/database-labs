@@ -1,0 +1,345 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Password for user postgres:
+
+psql (17.6)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+mydb=# \c project;
+You are now connected to database "project" as user "postgres".
+project=# INSERT INTO players (username, email, password_hash)
+project-# VALUES
+project-# ('Arlen', 'arlen@gmail.com', 'hash_Arlen'),
+project-# ('Asan', 'asan@gmail.com', 'hash_Asan'),
+project-# ('Aidai', 'aidai@gmail.com', 'hash_Aidai');
+INSERT 0 3
+project=# SELECT * FROM players;
+ player_id | username |      email       | password_hash | is_active |          created_at
+-----------+----------+------------------+---------------+-----------+-------------------------------
+         1 | player1  | player1@mail.com | hash123       | t         | 2025-12-14 20:56:14.237777+05
+         2 | Arlen    | arlen@gmail.com  | hash_Arlen    | t         | 2025-12-14 21:17:46.584876+05
+         3 | Asan     | asan@gmail.com   | hash_Asan     | t         | 2025-12-14 21:17:46.584876+05
+         4 | Aidai    | aidai@gmail.com  | hash_Aidai    | t         | 2025-12-14 21:17:46.584876+05
+(4 rows)
+
+
+project=# INSERT INTO characters (player_id, name, level, experience, class_id, location_id)
+project-# VALUES
+project-# ((SELECT player_id FROM players WHERE username='Arlen'), 'ArlenWar', 5, 1200,
+project(#  (SELECT class_id FROM classes WHERE name='Warrior'),
+project(# (SELECT location_id FROM locations WHERE name='Starter Village')),
+project-# ((SELECT player_id FROM players WHERE username='Arlen'), 'ArlenMage', 3, 600,
+project(#  (SELECT class_id FROM classes WHERE name='Mage'),
+project(#  (SELECT location_id FROM locations WHERE name='Ironforge')),
+project-# ((SELECT player_id FROM players WHERE username='Asan'), 'AsanRogue', 4, 900,
+project(#  (SELECT class_id FROM classes WHERE name='Rogue'),
+project(#  (SELECT location_id FROM locations WHERE name='Starter Village')),
+project-# ((SELECT player_id FROM players WHERE username='Aidai'), 'AidaiMage', 7, 2000,
+project(#  (SELECT class_id FROM classes WHERE name='Mage'),
+project(#  (SELECT location_id FROM locations WHERE name='Ironforge'));
+INSERT 0 4
+project=# SELECT char_id, name, level FROM characters;
+ char_id |   name    | level
+---------+-----------+-------
+       2 | ArlenWar  |     5
+       3 | ArlenMage |     3
+       4 | AsanRogue |     4
+       5 | AidaiMage |     7
+(4 rows)
+
+
+project=# INSERT INTO character_inventory (char_id, item_id, quantity, is_equipped)
+project-# VALUES
+project-# (
+project(#     (SELECT char_id FROM characters WHERE name='ArlenWar'),
+project(# (SELECT item_id FROM items WHERE name='Iron Sword'),
+project(#     1,
+project(#     TRUE
+project(# ),
+project-# (
+project(#     (SELECT char_id FROM characters WHERE name='ArlenWar'),
+project(# (SELECT item_id FROM items WHERE name='Health Potion'),
+project(#     5,
+project(#     FALSE
+project(# );
+INSERT 0 2
+project=# INSERT INTO character_inventory (char_id, item_id, quantity, is_equipped)
+project-# VALUES
+project-# (
+project(#     (SELECT char_id FROM characters WHERE name='ArlenMage'),
+project(# (SELECT item_id FROM items WHERE name='Health Potion'),
+project(#     3,
+project(#     FALSE
+project(# );
+INSERT 0 1
+project=# INSERT INTO character_inventory (char_id, item_id, quantity, is_equipped)
+project-# VALUES
+project-# (
+project(#     (SELECT char_id FROM characters WHERE name='AsanRogue'),
+project(# (SELECT item_id FROM items WHERE name='Steel Helmet'),
+project(#     1,
+project(#     TRUE
+project(# ),
+project-# (
+project(#     (SELECT char_id FROM characters WHERE name='AsanRogue'),
+project(# (SELECT item_id FROM items WHERE name='Health Potion'),
+project(#     2,
+project(#     FALSE
+project(# );
+INSERT 0 2
+project=# INSERT INTO character_inventory (char_id, item_id, quantity, is_equipped)
+project-# VALUES
+project-# (
+project(#     (SELECT char_id FROM characters WHERE name='AidaiMage'),
+project(# (SELECT item_id FROM items WHERE name='Health Potion'),
+project(#     10,
+project(#     FALSE
+project(# );
+INSERT 0 1
+project=# SELECT
+project-#     p.username,
+project-#     c.name AS character,
+project-#     i.name AS item,
+project-#     it.name AS type,
+project-#     ci.quantity,
+project-#     ci.is_equipped
+project-# FROM character_inventory ci
+project-# JOIN characters c ON ci.char_id = c.char_id
+project-# JOIN players p ON c.player_id = p.player_id
+project-# JOIN items i ON ci.item_id = i.item_id
+project-# JOIN item_types it ON i.item_type_id = it.item_type_id
+project-# ORDER BY p.username, c.name;
+ username | character |     item      |    type    | quantity | is_equipped ----------+-----------+---------------+------------+----------+------------- Aidai    | AidaiMage | Health Potion | Consumable |       10 | f
+ Arlen    | ArlenMage | Health Potion | Consumable |        3 | f
+ Arlen    | ArlenWar  | Iron Sword    | Weapon     |        1 | t
+ Arlen    | ArlenWar  | Health Potion | Consumable |        5 | f
+ Asan     | AsanRogue | Steel Helmet  | Armor      |        1 | t
+ Asan     | AsanRogue | Health Potion | Consumable |        2 | f
+(6 rows)
+
+
+project=# SELECT
+project-#     c.char_id,
+project-#     c.name AS character_name,
+project-#     c.level,
+project-#     cl.name AS class,
+project-#     l.name AS location
+project-# FROM characters c
+project-# LEFT JOIN classes cl ON c.class_id = cl.class_id
+project-# LEFT JOIN locations l ON c.location_id = l.location_id;
+ char_id | character_name | level |  class  |    location
+---------+----------------+-------+---------+-----------------
+       2 | ArlenWar       |     5 | Warrior | Starter Village
+       3 | ArlenMage      |     3 | Mage    | Ironforge
+       4 | AsanRogue      |     4 | Rogue   | Starter Village
+       5 | AidaiMage      |     7 | Mage    | Ironforge
+(4 rows)
+
+
+project=# SELECT c.char_id, c.name, c.level
+project-# FROM characters c
+project-# JOIN players p ON p.player_id = c.player_id
+project-# WHERE p.username = 'Arlen';
+ char_id |   name    | level
+---------+-----------+-------
+       2 | ArlenWar  |     5
+       3 | ArlenMage |     3
+(2 rows)
+
+
+project=# UPDATE characters
+project-# SET level = level + 1
+project-# WHERE char_id = 1;
+UPDATE 0
+project=# SELECT
+project-#     p.username,
+project-#     COUNT(c.char_id) AS character_count
+project-# FROM players p
+project-# LEFT JOIN characters c ON p.player_id = c.player_id
+project-# GROUP BY p.username;
+ username | character_count
+----------+-----------------
+ Asan     |               1
+ Arlen    |               2
+ player1  |               0
+ Aidai    |               1
+(4 rows)
+
+
+project=# SELECT
+project-#     char_id,
+project-#     name,
+project-#     level,
+project-#     RANK() OVER (ORDER BY level DESC) AS rank
+project-# FROM characters
+project-# LIMIT 5;
+ char_id |   name    | level | rank
+---------+-----------+-------+------
+       5 | AidaiMage |     7 |    1
+       2 | ArlenWar  |     5 |    2
+       4 | AsanRogue |     4 |    3
+       3 | ArlenMage |     3 |    4
+(4 rows)
+
+
+project=# SELECT
+project-#     cl.name AS class,
+project-#     AVG(c.level) AS avg_level
+project-# FROM characters c
+project-# JOIN classes cl ON c.class_id = cl.class_id
+project-# GROUP BY cl.name;
+  class  |     avg_level
+---------+--------------------
+ Rogue   | 4.0000000000000000
+ Warrior | 5.0000000000000000
+ Mage    | 5.0000000000000000
+(3 rows)
+
+
+project=# SELECT c.char_id, c.name
+project-# FROM characters c
+project-# LEFT JOIN character_inventory ci ON c.char_id = ci.char_id
+project-# WHERE ci.item_id IS NULL;
+ char_id | name
+---------+------
+(0 rows)
+
+
+project=# SELECT
+project-#     i.name,
+project-#     SUM(ci.quantity) AS total_quantity
+project-# FROM character_inventory ci
+project-# JOIN items i ON ci.item_id = i.item_id
+project-# GROUP BY i.name
+project-# ORDER BY total_quantity DESC;
+     name      | total_quantity
+---------------+----------------
+ Health Potion |             20
+ Iron Sword    |              1
+ Steel Helmet  |              1
+(3 rows)
+
+
+project=# WITH avg_level AS (
+project(#     SELECT AVG(level) AS avg_lvl FROM characters
+project(# )
+project-# SELECT c.char_id, c.name, c.level
+project-# FROM characters c, avg_level
+project-# WHERE c.level > avg_level.avg_lvl;
+ char_id |   name    | level
+---------+-----------+-------
+       2 | ArlenWar  |     5
+       5 | AidaiMage |     7
+(2 rows)
+
+
+project=# SELECT DISTINCT c.name
+project-# FROM characters c
+project-# WHERE c.char_id IN (
+project(#     SELECT ci.char_id
+project(#     FROM character_inventory ci
+project(#     JOIN items i ON ci.item_id = i.item_id
+project(#     JOIN item_types it ON i.item_type_id = it.item_type_id
+project(#     WHERE it.name = 'Weapon'
+project(# );
+   name
+----------
+ ArlenWar
+(1 row)
+
+
+project=# SELECT i.name, ci.quantity
+project-# FROM character_inventory ci
+project-# JOIN items i ON ci.item_id = i.item_id
+project-# WHERE ci.char_id = (SELECT char_id FROM characters WHERE name='ArlenWar')
+project-#   AND i.name = 'Health Potion';
+     name      | quantity
+---------------+----------
+ Health Potion |        5
+(1 row)
+
+
+project=# BEGIN;
+BEGIN
+project=*# INSERT INTO character_inventory (char_id, item_id, quantity)
+project-*# VALUES (
+project(*#     (SELECT char_id FROM characters WHERE name='ArlenWar'),
+project(*# (SELECT item_id FROM items WHERE name='Health Potion'),
+project(*#     2
+project(*# )
+project-*# ON CONFLICT (char_id, item_id)
+project-*# DO UPDATE SET quantity = character_inventory.quantity + 2;
+INSERT 0 1
+project=*# COMMIT;
+COMMIT
+project=# SELECT i.name, ci.quantity
+project-# FROM character_inventory ci
+project-# JOIN items i ON ci.item_id = i.item_id
+project-# WHERE ci.char_id = (SELECT char_id FROM characters WHERE name='ArlenWar')
+project-#   AND i.name = 'Health Potion';
+     name      | quantity
+---------------+----------
+ Health Potion |        7
+(1 row)
+
+
+project=# BEGIN;
+BEGIN
+project=*# UPDATE characters
+project-*# SET level = level + 1
+project-*# WHERE name = 'ArlenWar';
+UPDATE 1
+project=*# INSERT INTO characters (player_id, name)
+project-*# VALUES (9999, 'BrokenChar');
+ОШИБКА:  INSERT или UPDATE в таблице "characters" нарушает ограничение внешнего ключа "characters_player_id_fkey"
+DETAIL:  Ключ (player_id)=(9999) отсутствует в таблице "players".
+project=!# ROLLBACK;
+ROLLBACK
+project=# SELECT name, level
+project-# FROM characters
+project-# WHERE name = 'ArlenWar';
+   name   | level
+----------+-------
+ ArlenWar |     5
+(1 row)
+
+
+project=# DROP INDEX IF EXISTS idx_char_level;
+DROP INDEX
+project=# EXPLAIN ANALYZE
+project-# SELECT *
+project-# FROM characters
+project-# WHERE level >= 5;
+                                               QUERY PLAN
+--------------------------------------------------------------------------------------------------------
+ Seq Scan on characters  (cost=0.00..13.38 rows=90 width=266) (actual time=0.008..0.009 rows=2 loops=1)
+   Filter: (level >= 5)
+   Rows Removed by Filter: 2
+ Planning Time: 0.640 ms
+ Execution Time: 0.022 ms
+(5 rows)
+
+
+project=# CREATE INDEX idx_char_level ON characters(level);
+CREATE INDEX
+project=# EXPLAIN ANALYZE
+project-# SELECT *
+project-# FROM characters
+project-# WHERE level >= 5;
+                                              QUERY PLAN
+------------------------------------------------------------------------------------------------------
+ Seq Scan on characters  (cost=0.00..1.05 rows=1 width=266) (actual time=0.010..0.011 rows=2 loops=1)
+   Filter: (level >= 5)
+   Rows Removed by Filter: 2
+ Planning Time: 1.259 ms
+ Execution Time: 0.026 ms
+(5 rows)
+
+
+project=# \q
+Press any key to continue . . .
