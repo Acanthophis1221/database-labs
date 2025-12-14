@@ -1,0 +1,60 @@
+Server [localhost]: psql -h localhost -p 5432 -U postgres -d mydb
+Database [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Port [5432]: psql -h localhost -p 5432 -U postgres -d mydb
+Username [postgres]: psql -h localhost -p 5432 -U postgres -d mydb
+Password for user postgres:
+
+psql (17.6)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+mydb=# \c project
+You are now connected to database "project" as user "postgres".
+project=# SELECT COUNT(*) FROM characters;
+ count
+-------
+     4
+(1 row)
+
+
+project=# DROP TABLE characters CASCADE;
+ЗАМЕЧАНИЕ:  удаление распространяется на объект ограничение character_inventory_char_id_fkey в отношении таблица character_inventory
+DROP TABLE
+project=# \dt
+                List of relations
+ Schema |        Name         | Type  |  Owner
+--------+---------------------+-------+----------
+ public | character_inventory | table | postgres
+ public | classes             | table | postgres
+ public | item_types          | table | postgres
+ public | items               | table | postgres
+ public | locations           | table | postgres
+ public | players             | table | postgres
+(6 rows)
+
+
+project=# SELECT COUNT(*) FROM characters;
+ count
+-------
+     4
+(1 row)
+
+
+project=# \dt
+                List of relations
+ Schema |        Name         | Type  |  Owner
+--------+---------------------+-------+----------
+ public | character_inventory | table | postgres
+ public | characters          | table | postgres
+ public | classes             | table | postgres
+ public | item_types          | table | postgres
+ public | items               | table | postgres
+ public | locations           | table | postgres
+ public | players             | table | postgres
+(7 rows)
+
+
+project=# \q
+Press any key to continue . . .
